@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Vagner|A Jornada</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Pinyon+Script&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <audio id="bg-music" src="purple-rain.mp3" preload="auto"></audio>
+
+    <div id="intro-overlay">
+        <div class="intro-content">
+            <h2 class="pre-title">Bem-vindo à minha</h2>
+            <h1 class="intro-title">JORNADA</h1>
+            <div class="separator-gold"></div>
+            <p class="intro-subtitle">Uma celebração de quem eu fui, sou e serei.</p>
+            <button id="start-btn">INICIAR EXPERIÊNCIA</button>
+        </div>
+    </div>
+
+    <canvas id="mist-canvas"></canvas>
+    <canvas id="climax-canvas"></canvas> 
+    <div class="vignette"></div>
+
+    <div class="ui-container">
+        <p id="progress-text">Preparando a alma...</p>
+        <div class="progress-wrapper">
+            <div id="v-progress-bar"></div>
+        </div>
+    </div>
+
+    <main id="stage">
+        <div class="envelope-wrapper" id="envelope-wrapper">
+            <div class="envelope" id="envelope">
+                <div class="envelope-front"><span class="seal">V</span></div>
+                <div class="envelope-back"></div>
+                <div class="envelope-top"></div>
+                <div class="envelope-inside"></div>
+            </div>
+        </div>
+    </main>
+
+    <div id="reading-modal">
+        <div class="letter-paper">
+            <div class="letter-header">
+                <h1>Carta Aberta a mim</h1>
+                <span class="date">Formatura, 2026</span>
+            </div>
+            
+            <div class="letter-scroll-area">
+                <p class="t-block">Hoje eu me formo.</p>
+                <p class="t-block">E antes de qualquer certificado, antes de qualquer foto, preciso olhar para mim com sinceridade — aquela sinceridade que só eu conheço.</p>
+                <p class="t-block">Eu sei tudo o que vivi para chegar aqui.</p>
+                <p class="t-block">Sei das noites em que tentei estudar sem concentração, dos dias em que trabalhar e estudar ao mesmo tempo parecia impossível, e da sensação constante de ter que provar algo para mim mesmo.</p>
+                <p class="t-block">Sei do peso de sair de onde vim, carregando muita fé e pouca certeza.</p>
+                <p class="t-block">E sei também o que foi chegar em uma cidade grande, tentando ser alguém, tentando me encontrar, tentando aprender a respirar no meio do caos.</p>
+                <p class="t-block">Nada disso foi simples. Eu sei. Eu vivi.</p>
+                <p class="t-block">Hoje, olhando para mim neste dia que parecia tão distante, preciso reconhecer três versões minhas que caminharam juntas:</p>
+                
+                <div class="divider-icon">✦</div>
+                
+                <p class="t-block purp-text">O Vagner que eu fui</p>
+                <p class="t-block">Este merece um abraço. Porque ele suportou coisas que ninguém viu. Ele encarou o medo, a falta, a solidão, a saudade e o silêncio… E, mesmo assim, continuou.</p>
+                <p class="t-block">Ele teve a coragem de sair de onde veio e acreditar que poderia ser mais, mesmo sem ter nenhuma garantia. Ele foi forte quando não podia ser fraco. E foi por causa dele que eu cheguei aqui.</p>
+                
+                <p class="t-block purp-text">O Vagner que eu sou agora</p>
+                <p class="t-block">Este aqui… está cansado, mas orgulhoso. Este sabe o valor do caminho. Sabe o quanto ralou, o que abriu mão, o que precisou aprender na marra.</p>
+                <p class="t-block">Este Vagner sabe que vencer não é rápido, não é bonito e não é fácil, mas sabe que vale a pena.</p>
+                <p class="t-block">Hoje, ele finalmente entende que não precisava ter sido tão duro consigo mesmo. Mas também entende que, sem essa dureza, talvez não tivesse chegado.</p>
+                
+                <p class="t-block purp-text">O Vagner que eu serei</p>
+                <p class="t-block">Este ainda é um mistério, mas eu espero algumas coisas dele. Espero que ele não esqueça da raiz. Espero que ele não se perca na pressa. Espero que continue criando, aprendendo, se reinventando.</p>
+                <p class="t-block">Espero que ele olhe para trás com orgulho — não por vaidade, mas porque cada passo teve significado. E, acima de tudo, espero que ele nunca deixe de acreditar em si mesmo. Porque isso é o que sempre me moveu.</p>
+                
+                <div class="divider-icon">✦</div>
+                
+                <p class="t-block">Hoje, Vagner, você não está recebendo apenas um diploma. Você está encerrando uma fase que te fez crescer como nenhum livro, nenhum professor e nenhum sistema poderiam fazer.</p>
+                <p class="t-block">Você se formou muito antes da faculdade acabar. E agora, você só está tornando isso oficial.</p>
+                <p class="t-block">Guarda este dia. Guarda quem você precisou ser. Guarda o que sentiu.</p>
+                
+                <p class="t-block highlight-final">Você venceu. E isso é só seu.</p>
+                <p class="signature">— escrito por Vagner para Vagner.</p>
+                
+                <div class="finale-trigger">
+                    <button id="end-btn" class="gold-btn">ETERNIZAR MOMENTO</button>
+                </div>
+
+                <div class="end-spacer"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="final-screen">
+        <h1 class="final-message">O FUTURO É SEU</h1>
+        <p class="final-sub">Obrigado por ter resistido.</p>
+        <div class="final-flash"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
