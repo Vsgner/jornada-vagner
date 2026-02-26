@@ -119,7 +119,8 @@ canvas {
 }
 
 #climax-canvas {
-    z-index: 1500;
+    z-index: 500; 
+    pointer-events: none;
 }
 
 .vignette {
