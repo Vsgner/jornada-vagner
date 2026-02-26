@@ -168,33 +168,81 @@ let mParticles = [];
 function initMist() {
     mCanvas.width = window.innerWidth;
     mCanvas.height = window.innerHeight;
+    mParticles = [];
     
-    for (let i = 0; i < 60; i++) mParticles.push({
-        x: Math.random() * mCanvas.width,
-        y: Math.random() * mCanvas.height,
-        r: Math.random() * 100 + 50,
-        dx: (Math.random() - .5) * 0.5,
-        dy: (Math.random() - .5) * 0.5
-    });
+    
+    const particleCount = window.innerWidth < 600 ? 15 : 30;
+    
+    for (let i = 0; i < particleCount; i++) {
+        mParticles.push({
+            x: Math.random() * mCanvas.width,
+            y: Math.random() * mCanvas.height,
+            r: Math.random() * 250 + 150, 
+            angle: Math.random() * Math.PI * 2,
+            baseSpeed: Math.random() * 0.4 + 0.1, 
+            oscillation: Math.random() * 0.02 + 0.005, 
+            baseAlpha: Math.random() * 0.2 + 0.05
+        });
+    }
 }
 
 function animMist() {
-    mCtx.clearRect(0, 0, mCanvas.width, mCanvas.height);
-    mParticles.forEach(p => {
-        p.x += p.dx;
-        p.y += p.dy;
-        if (p.x < 0 || p.x > mCanvas.width) p.dx *= -1;
-        if (p.y < 0 || p.y > mCanvas.height) p.dy *= -1;
-        let g = mCtx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r);
     
-        g.addColorStop(0, 'rgba(120, 20, 180, 0.4)');
+    mCtx.clearRect(0, 0, mCanvas.width, mCanvas.height);
+
+
+    let progress = 0;
+    if (audio && audio.currentTime) {
+        progress = Math.min(audio.currentTime / CLIMAX_TIME, 1);
+    }
+
+    mParticles.forEach(p => {
+       
+        p.angle += p.oscillation;
+        
+       
+        p.y -= (p.baseSpeed + (progress * 2.5)); 
+        
+        
+        p.x += Math.sin(p.angle) * 1.5;
+
+        
+        if (p.y < -p.r) {
+            p.y = mCanvas.height + p.r;
+            p.x = Math.random() * mCanvas.width;
+        }
+
+        
+        let currentAlpha = p.baseAlpha + (progress * 0.3);
+        if (currentAlpha > 0.6) currentAlpha = 0.6;
+
+      
+        let g = mCtx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r);
+        
+        // Cores neon/deep purple que reagem ao progresso
+        g.addColorStop(0, `rgba(157, 0, 255, ${currentAlpha})`);
+        g.addColorStop(0.5, `rgba(75, 0, 130, ${currentAlpha * 0.5})`);
         g.addColorStop(1, 'transparent');
+
+    
+        mCtx.globalCompositeOperation = 'screen'; 
         mCtx.fillStyle = g;
         mCtx.beginPath();
         mCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
         mCtx.fill();
     });
-    requestAnimationFrame(animMist);
+    
+    mCtx.globalCompositeOperation = 'source-over';
+
+   
+    if (!isGoldenAscension) {
+        requestAnimationFrame(animMist);
+    }
 }
+
+window.addEventListener('resize', () => {
+    initMist();
+});
+
 initMist();
 animMist();

@@ -105,8 +105,17 @@ canvas {
 
 #mist-canvas {
     z-index: 1;
-    opacity: 0.8;
-    filter: blur(20px);
+    opacity: 0; 
+    animation: fadeInMist 3s forwards 1s; 
+    filter: blur(40px); 
+    mix-blend-mode: screen;
+}
+
+/* Animação para a fumaça surgir de forma suave */
+@keyframes fadeInMist {
+    to {
+        opacity: 0.85;
+    }
 }
 
 #climax-canvas {
@@ -214,8 +223,8 @@ canvas {
     
     
     position: absolute; 
-    top: 30%; 
-    left: 50%; 
+    top: 40%; 
+    left: 40%; 
     
     
     transform: translate(-50%, -50%) translateZ(1px); 
