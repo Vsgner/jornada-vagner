@@ -196,8 +196,7 @@ canvas {
     background: linear-gradient(135deg, #3a0066, #1a0033);
 }
 
-/* --- CORREÇÃO DO SELO "V" --- */
-/* Adicionado position: relative e z-index: 20 para ficar acima da aba (z-index 15) */
+/* --- SELO "V" --- */
 .seal {
     font-family: 'Pinyon Script', cursive;
     font-size: 3.5rem;
@@ -212,10 +211,14 @@ canvas {
     align-items: center;
     box-shadow: 0 5px 15px rgba(0,0,0,0.5);
     padding-top: 8px;
-    position: relative; /* Necessário para o z-index funcionar */
-    z-index: 20; /* Garante que fique acima da aba superior */
+    
+    
+    position: absolute; 
+    top: 50%; 
+    left: 50%; 
+    transform: translate(-50%, -50%); 
+    z-index: 20;
 }
-
 .envelope-back {
     transform: rotateY(180deg);
     background: #1a0033;
