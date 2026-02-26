@@ -17,13 +17,12 @@ let particles = [];
 let isGoldenAscension = false;
 
 // ==========================================
-// EFEITO 1: POEIRA ESTELAR (FAGULHAS DOURADAS EM GRAVIDADE ZERO)
+// EFEITO 1: POEIRA ESTELAR OTIMIZADA
 // ==========================================
 function createExplosion(isGold = false) {
     cCanvas.width = window.innerWidth;
     cCanvas.height = window.innerHeight;
     
-    // Mais partículas, mas muito mais delicadas e pequenas
     const count = window.innerWidth < 600 ? 150 : 300; 
 
     if (!isGold) particles = []; 
@@ -31,20 +30,13 @@ function createExplosion(isGold = false) {
     for (let i = 0; i < count; i++) {
         particles.push({
             x: Math.random() * cCanvas.width,
-            y: Math.random() * cCanvas.height, // Nascem espalhadas por todo o ecrã
-            
-            // Cores: 80% Dourado suave/brilhante, 20% branco etéreo para dar profundidade
+            y: Math.random() * cCanvas.height,
             color: isGold ? 
                 `rgba(255, 215, 0, ${Math.random() * 0.8 + 0.2})` : 
                 (Math.random() > 0.2 ? `rgba(212, 175, 55, ${Math.random() * 0.7 + 0.3})` : `rgba(255, 255, 255, ${Math.random() * 0.5 + 0.2})`),
-            
-            size: Math.random() * 2.5 + 0.5, // Partículas pequenas como poeira
-            
-            // Velocidade: flutuam lentamente para cima e um pouco para os lados (gravidade zero)
+            size: Math.random() * 2.5 + 0.5,
             speedX: (Math.random() - 0.5) * 0.4, 
             speedY: isGold ? -(Math.random() * 4 + 2) : -(Math.random() * 0.8 + 0.2), 
-            
-            // Sistema de pulsação de luz (brilho que acende e apaga suavemente)
             opacity: Math.random(),
             pulseSpeed: Math.random() * 0.03 + 0.01 
         });
@@ -59,42 +51,40 @@ function updateParticles() {
         cCtx.fillRect(0, 0, cCanvas.width, cCanvas.height);
     }
 
-    // Blend mode para as partículas brilharem intensamente como luz
     cCtx.globalCompositeOperation = "screen"; 
 
     particles.forEach((p, i) => {
-        // Movimento
         p.x += p.speedX;
         p.y += p.speedY;
 
-        // Pulsação do brilho
         p.opacity += p.pulseSpeed;
-        if (p.opacity > 1 || p.opacity < 0.2) p.pulseSpeed *= -1; // Inverte quando chega ao limite
+        if (p.opacity > 1 || p.opacity < 0.2) p.pulseSpeed *= -1; 
 
-        // Efeito visual da partícula com "glow" (brilho difuso)
-        cCtx.beginPath();
-        cCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
         cCtx.fillStyle = p.color;
-        cCtx.globalAlpha = Math.abs(p.opacity);
-        
-        cCtx.shadowBlur = p.size * 4; // Cria o halo de luz em volta da partícula
-        cCtx.shadowColor = p.color;
-        
+        let currentAlpha = Math.abs(p.opacity);
+
+        // OTIMIZAÇÃO: "Fake Glow" sem usar shadowBlur
+        // Desenha o halo externo difuso
+        cCtx.beginPath();
+        cCtx.arc(p.x, p.y, p.size * 3, 0, Math.PI * 2);
+        cCtx.globalAlpha = currentAlpha * 0.25; 
         cCtx.fill();
 
-        // Se a poeira sair do ecrã, recolocamo-la suavemente do outro lado
+        // Desenha o núcleo brilhante
+        cCtx.beginPath();
+        cCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        cCtx.globalAlpha = currentAlpha;
+        cCtx.fill();
+
         if (!isGoldenAscension) {
             if (p.y < -10) p.y = cCanvas.height + 10;
             if (p.x < -10) p.x = cCanvas.width + 10;
             if (p.x > cCanvas.width + 10) p.x = -10;
         } else {
-            // Na ascensão final, deixamos fugir para desaparecer
             if (p.y < -10) particles.splice(i, 1);
         }
     });
 
-    // Reset para não interferir com outros elementos do canvas
-    cCtx.shadowBlur = 0;
     cCtx.globalAlpha = 1;
     cCtx.globalCompositeOperation = "source-over"; 
 
@@ -197,11 +187,23 @@ startBtn.addEventListener('click', startExperience);
 endBtn.addEventListener('click', finishJourney);
 
 // ==========================================
-// EFEITO 2: NÉVOA DINÂMICA (FUMAÇA)
+// EFEITO 2: NÉVOA OTIMIZADA (OFFSCREEN CACHE)
 // ==========================================
 const mCanvas = document.getElementById('mist-canvas');
 const mCtx = mCanvas.getContext('2d');
 let mParticles = [];
+
+// OTIMIZAÇÃO: Cria o desenho da fumaça na memória apenas uma vez
+const mistSprite = document.createElement('canvas');
+mistSprite.width = 500;
+mistSprite.height = 500;
+const spriteCtx = mistSprite.getContext('2d');
+const spriteGrad = spriteCtx.createRadialGradient(250, 250, 0, 250, 250, 250);
+spriteGrad.addColorStop(0, 'rgba(157, 0, 255, 1)');
+spriteGrad.addColorStop(0.5, 'rgba(75, 0, 130, 0.5)');
+spriteGrad.addColorStop(1, 'transparent');
+spriteCtx.fillStyle = spriteGrad;
+spriteCtx.fillRect(0, 0, 500, 500);
 
 function initMist() {
     mCanvas.width = window.innerWidth;
@@ -231,6 +233,8 @@ function animMist() {
         progress = Math.min(audio.currentTime / CLIMAX_TIME, 1);
     }
 
+    mCtx.globalCompositeOperation = 'screen'; 
+
     mParticles.forEach(p => {
         p.angle += p.oscillation;
         p.y -= (p.baseSpeed + (progress * 2.5)); 
@@ -244,19 +248,12 @@ function animMist() {
         let currentAlpha = p.baseAlpha + (progress * 0.3);
         if (currentAlpha > 0.6) currentAlpha = 0.6;
 
-        let g = mCtx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r);
-        
-        g.addColorStop(0, `rgba(157, 0, 255, ${currentAlpha})`);
-        g.addColorStop(0.5, `rgba(75, 0, 130, ${currentAlpha * 0.5})`);
-        g.addColorStop(1, 'transparent');
-
-        mCtx.globalCompositeOperation = 'screen'; 
-        mCtx.fillStyle = g;
-        mCtx.beginPath();
-        mCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        mCtx.fill();
+        // OTIMIZAÇÃO: Desenha a imagem da memória em vez de calcular gradiente novo
+        mCtx.globalAlpha = currentAlpha;
+        mCtx.drawImage(mistSprite, p.x - p.r, p.y - p.r, p.r * 2, p.r * 2);
     });
     
+    mCtx.globalAlpha = 1;
     mCtx.globalCompositeOperation = 'source-over'; 
 
     if (!isGoldenAscension) {
