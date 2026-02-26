@@ -206,18 +206,24 @@ canvas {
     background: var(--purple-deep);
     border: 2px solid var(--gold);
     border-radius: 50%;
+    
     display: flex;
     justify-content: center;
     align-items: center;
     box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-    padding-top: 8px;
     
     
     position: absolute; 
-    top: 50%; 
+    top: 52%; 
     left: 50%; 
-    transform: translate(-50%, -50%); 
-    z-index: 20;
+    
+    
+    transform: translate(-50%, -50%) translateZ(1px); 
+    
+   
+    backface-visibility: hidden; 
+    
+    z-index: 20; 
 }
 .envelope-back {
     transform: rotateY(180deg);
