@@ -23,7 +23,8 @@ function createExplosion(isGold = false) {
     cCanvas.width = window.innerWidth;
     cCanvas.height = window.innerHeight;
     
-    const count = window.innerWidth < 600 ? 150 : 300; 
+    
+    const count = window.innerWidth < 600 ? 200 : 300; 
 
     if (!isGold) particles = []; 
 
@@ -34,7 +35,9 @@ function createExplosion(isGold = false) {
             color: isGold ? 
                 `rgba(255, 215, 0, ${Math.random() * 0.8 + 0.2})` : 
                 (Math.random() > 0.2 ? `rgba(212, 175, 55, ${Math.random() * 0.7 + 0.3})` : `rgba(255, 255, 255, ${Math.random() * 0.5 + 0.2})`),
-            size: Math.random() * 2.5 + 0.5,
+            
+            size: window.innerWidth < 600 ? Math.random() * 3.5 + 1 : Math.random() * 2.5 + 0.5,
+            
             speedX: (Math.random() - 0.5) * 0.4, 
             speedY: isGold ? -(Math.random() * 4 + 2) : -(Math.random() * 0.8 + 0.2), 
             opacity: Math.random(),
