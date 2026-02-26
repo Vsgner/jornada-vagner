@@ -19,56 +19,80 @@ let isGoldenAscension = false;
 function createExplosion(isGold = false) {
     cCanvas.width = window.innerWidth;
     cCanvas.height = window.innerHeight;
-    const count = window.innerWidth < 600 ? 150 : 350;
+    const count = window.innerWidth < 600 ? 100 : 200; 
+
+   
+    if (!isGold) particles = []; 
 
     for (let i = 0; i < count; i++) {
         particles.push({
-            x: window.innerWidth / 2,
-            y: window.innerHeight / 2,
-            color: isGold ?
-                `hsl(50, 100%, ${Math.random()*40 + 50}%)` :
-                (Math.random() > 0.3 ? `hsl(${Math.random()*60 + 250}, 100%, 60%)` : '#d4af37'),
-            size: Math.random() * 8 + 4,
-            speed: isGold ? Math.random() * 40 + 20 : Math.random() * 25 + 10,
-            angle: Math.random() * Math.PI * 2,
-            decay: isGold ? 0 : Math.random() * 0.02 + 0.015,
-            z: 0
+            x: Math.random() * cCanvas.width,
+           
+            y: isGold ? Math.random() * cCanvas.height : Math.random() * cCanvas.height - cCanvas.height,
+            
+            
+            color: isGold ? 
+                `rgba(255, 215, 0, ${Math.random() * 0.6 + 0.4})` : 
+                (Math.random() > 0.15 ? `rgba(157, 0, 255, ${Math.random() * 0.5 + 0.3})` : `rgba(212, 175, 55, ${Math.random() * 0.6 + 0.4})`),
+            
+            size: Math.random() * 1.5 + 0.5, 
+            length: Math.random() * 40 + 15, 
+            speed: isGold ? Math.random() * 20 + 10 : Math.random() * 4 + 2, 
+            
+            
+            angle: isGold ? -Math.PI / 2 + (Math.random() * 0.1 - 0.05) : Math.PI / 2 + (Math.random() * 0.05 - 0.025) 
         });
     }
 }
 
 function updateParticles() {
-    cCtx.clearRect(0, 0, cCanvas.width, cCanvas.height);
+   
+    cCtx.fillStyle = "rgba(0, 0, 0, 0.2)";
+    cCtx.fillRect(0, 0, cCanvas.width, cCanvas.height);
 
+   
     if (isGoldenAscension) {
         cCtx.fillStyle = "rgba(255, 215, 0, 0.05)";
         cCtx.fillRect(0, 0, cCanvas.width, cCanvas.height);
     }
 
+    
+    cCtx.globalCompositeOperation = "screen"; 
+
     particles.forEach((p, i) => {
         p.x += Math.cos(p.angle) * p.speed;
         p.y += Math.sin(p.angle) * p.speed;
 
-        if (!isGoldenAscension) {
-            p.speed *= 0.95;
-            p.size *= 0.96;
-            p.alpha = p.size / 10;
-        } else {
-            p.size += 0.2;
-        }
-
-        cCtx.globalAlpha = isGoldenAscension ? 1 : (p.size / 10);
-        cCtx.fillStyle = p.color;
+        cCtx.strokeStyle = p.color;
+        cCtx.lineWidth = p.size;
+        cCtx.lineCap = "round";
+        
         cCtx.beginPath();
-        cCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        cCtx.fill();
+        cCtx.moveTo(p.x, p.y);
+        
+        cCtx.lineTo(p.x - Math.cos(p.angle) * p.length, p.y - Math.sin(p.angle) * p.length);
+        cCtx.stroke();
 
-        if (!isGoldenAscension && p.size < 0.1) particles.splice(i, 1);
+        if (!isGoldenAscension) {
+            
+            if (p.y > cCanvas.height + p.length) {
+                p.y = -p.length;
+                p.x = Math.random() * cCanvas.width;
+            }
+        } else {
+            
+            if (p.y < -p.length) {
+                particles.splice(i, 1);
+            }
+        }
     });
 
-    if (particles.length > 0 || isGoldenAscension) requestAnimationFrame(updateParticles);
-}
+    
+    cCtx.globalCompositeOperation = "source-over"; 
 
+    
+    if (particles.length > 0 || climaxActive) requestAnimationFrame(updateParticles);
+}
 function startExperience() {
     gsap.to("#intro-overlay", {
         opacity: 0,
