@@ -17,66 +17,85 @@ let particles = [];
 let isGoldenAscension = false;
 
 // ==========================================
-// EFEITO 1: CHUVA DE LUZ (PURPLE RAIN) E ASCENSÃO DOURADA
+// EFEITO 1: POEIRA ESTELAR (FAGULHAS DOURADAS EM GRAVIDADE ZERO)
 // ==========================================
 function createExplosion(isGold = false) {
     cCanvas.width = window.innerWidth;
     cCanvas.height = window.innerHeight;
-    const count = window.innerWidth < 600 ? 100 : 200;
+    
+    // Mais partículas, mas muito mais delicadas e pequenas
+    const count = window.innerWidth < 600 ? 150 : 300; 
 
     if (!isGold) particles = []; 
 
     for (let i = 0; i < count; i++) {
         particles.push({
             x: Math.random() * cCanvas.width,
-            y: isGold ? Math.random() * cCanvas.height : Math.random() * cCanvas.height - cCanvas.height,
+            y: Math.random() * cCanvas.height, // Nascem espalhadas por todo o ecrã
+            
+            // Cores: 80% Dourado suave/brilhante, 20% branco etéreo para dar profundidade
             color: isGold ? 
-                `rgba(255, 215, 0, ${Math.random() * 0.6 + 0.4})` : 
-                (Math.random() > 0.15 ? `rgba(157, 0, 255, ${Math.random() * 0.5 + 0.3})` : `rgba(212, 175, 55, ${Math.random() * 0.6 + 0.4})`),
-            size: Math.random() * 1.5 + 0.5,
-            length: Math.random() * 40 + 15,
-            speed: isGold ? Math.random() * 20 + 10 : Math.random() * 4 + 2,
-            angle: isGold ? -Math.PI / 2 + (Math.random() * 0.1 - 0.05) : Math.PI / 2 + (Math.random() * 0.05 - 0.025) 
+                `rgba(255, 215, 0, ${Math.random() * 0.8 + 0.2})` : 
+                (Math.random() > 0.2 ? `rgba(212, 175, 55, ${Math.random() * 0.7 + 0.3})` : `rgba(255, 255, 255, ${Math.random() * 0.5 + 0.2})`),
+            
+            size: Math.random() * 2.5 + 0.5, // Partículas pequenas como poeira
+            
+            // Velocidade: flutuam lentamente para cima e um pouco para os lados (gravidade zero)
+            speedX: (Math.random() - 0.5) * 0.4, 
+            speedY: isGold ? -(Math.random() * 4 + 2) : -(Math.random() * 0.8 + 0.2), 
+            
+            // Sistema de pulsação de luz (brilho que acende e apaga suavemente)
+            opacity: Math.random(),
+            pulseSpeed: Math.random() * 0.03 + 0.01 
         });
     }
 }
 
 function updateParticles() {
-    cCtx.fillStyle = "rgba(0, 0, 0, 0.2)";
-    cCtx.fillRect(0, 0, cCanvas.width, cCanvas.height);
+    cCtx.clearRect(0, 0, cCanvas.width, cCanvas.height);
 
     if (isGoldenAscension) {
         cCtx.fillStyle = "rgba(255, 215, 0, 0.05)";
         cCtx.fillRect(0, 0, cCanvas.width, cCanvas.height);
     }
 
+    // Blend mode para as partículas brilharem intensamente como luz
     cCtx.globalCompositeOperation = "screen"; 
 
     particles.forEach((p, i) => {
-        p.x += Math.cos(p.angle) * p.speed;
-        p.y += Math.sin(p.angle) * p.speed;
+        // Movimento
+        p.x += p.speedX;
+        p.y += p.speedY;
 
-        cCtx.strokeStyle = p.color;
-        cCtx.lineWidth = p.size;
-        cCtx.lineCap = "round";
-        
+        // Pulsação do brilho
+        p.opacity += p.pulseSpeed;
+        if (p.opacity > 1 || p.opacity < 0.2) p.pulseSpeed *= -1; // Inverte quando chega ao limite
+
+        // Efeito visual da partícula com "glow" (brilho difuso)
         cCtx.beginPath();
-        cCtx.moveTo(p.x, p.y);
-        cCtx.lineTo(p.x - Math.cos(p.angle) * p.length, p.y - Math.sin(p.angle) * p.length);
-        cCtx.stroke();
+        cCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        cCtx.fillStyle = p.color;
+        cCtx.globalAlpha = Math.abs(p.opacity);
+        
+        cCtx.shadowBlur = p.size * 4; // Cria o halo de luz em volta da partícula
+        cCtx.shadowColor = p.color;
+        
+        cCtx.fill();
 
+        // Se a poeira sair do ecrã, recolocamo-la suavemente do outro lado
         if (!isGoldenAscension) {
-            if (p.y > cCanvas.height + p.length) {
-                p.y = -p.length;
-                p.x = Math.random() * cCanvas.width;
-            }
+            if (p.y < -10) p.y = cCanvas.height + 10;
+            if (p.x < -10) p.x = cCanvas.width + 10;
+            if (p.x > cCanvas.width + 10) p.x = -10;
         } else {
-            if (p.y < -p.length) {
-                particles.splice(i, 1);
-            }
+            // Na ascensão final, deixamos fugir para desaparecer
+            if (p.y < -10) particles.splice(i, 1);
         }
     });
 
+    // Reset para não interferir com outros elementos do canvas
+    cCtx.shadowBlur = 0;
+    cCtx.globalAlpha = 1;
     cCtx.globalCompositeOperation = "source-over"; 
 
     if (particles.length > 0 || climaxActive) requestAnimationFrame(updateParticles);
